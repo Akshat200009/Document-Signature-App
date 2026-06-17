@@ -42,32 +42,40 @@ public class JwtAuthenticationFilter
             return;
         }
 
-        String token =
-                authHeader.substring(7);
+        try {
 
-        String email =
-                jwtService.extractUsername(token);
+            String token =
+                    authHeader.substring(7);
 
-        if (email != null &&
+            String email =
+                    jwtService.extractUsername(token);
+
+            if (email != null &&
+                    SecurityContextHolder
+                            .getContext()
+                            .getAuthentication() == null) {
+
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                email,
+                                null,
+                                null);
+
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource()
+                                .buildDetails(request));
+
                 SecurityContextHolder
                         .getContext()
-                        .getAuthentication() == null) {
+                        .setAuthentication(authToken);
+            }
 
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(
-                            email,
-                            null,
-                            null);
+        } catch (Exception e) {
 
-            authToken.setDetails(
-                    new WebAuthenticationDetailsSource()
-                            .buildDetails(request));
-
-            SecurityContextHolder
-                    .getContext()
-                    .setAuthentication(authToken);
+            System.out.println("JWT Error : "
+                    + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
-}
+    }
