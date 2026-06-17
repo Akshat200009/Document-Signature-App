@@ -30,7 +30,8 @@ public class SecurityConfig {
             throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
+        .cors(Customizer.withDefaults())
+        .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
@@ -39,7 +40,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**",
                                 "/api/test",
-                                "/api/documents/upload"
+                                "/api/documents/upload",
+                                "/api/documents/download/**"
                                )
 
                         .permitAll()
