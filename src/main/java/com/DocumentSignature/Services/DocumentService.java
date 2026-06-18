@@ -68,7 +68,7 @@ public class DocumentService {
                 filePath);
 
         document.setStatus(
-                "PENDING");
+                "SIGNED");
 
         document.setUploadedAt(
                 LocalDateTime.now());

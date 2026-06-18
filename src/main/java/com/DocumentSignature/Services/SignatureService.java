@@ -57,7 +57,7 @@ public class SignatureService {
         signature.setY(request.getY());
         signature.setPage(request.getPage());
 
-        signature.setStatus("PENDING");
+        signature.setStatus("Signed");
 
         signatureRepository.save(signature);
 

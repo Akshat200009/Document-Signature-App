@@ -29,3 +29,21 @@ export const getDocumentById = (id) => {
 export const getPdfUrl = (id) => {
     return `${API_URL}/download/${id}`;
 };
+
+export const saveSignature = (
+    documentId,
+    x,
+    y
+) => {
+
+    return axios.post(
+        "http://localhost:8079/api/signatures",
+        {
+            documentId,
+            x,
+            y,
+            page: 1
+        },
+        authHeader()
+    );
+};

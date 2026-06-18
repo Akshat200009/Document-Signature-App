@@ -1,9 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
-
 import { Document, Page, pdfjs } from "react-pdf";
-
 import axios from "axios";
+
+import {
+    saveSignature
+} from "../Services/DocumentService";
 
 pdfjs.GlobalWorkerOptions.workerSrc =
     new URL(
@@ -15,28 +17,31 @@ function DocumentPreview() {
 
     const { id } = useParams();
 
-    const [signatures, setSignatures] =
-        useState([]);
-
-    const [numPages, setNumPages] =
-        useState(null);
-
     const token =
         localStorage.getItem("token");
+
+    const [signatures,
+        setSignatures] =
+        useState([]);
+
+    const [position,
+        setPosition] =
+        useState(null);
 
     const pdfUrl =
         `http://localhost:8079/api/documents/download/${id}`;
 
-    const file = useMemo(
-        () => ({
-            url: pdfUrl,
-            httpHeaders: {
-                Authorization:
-                    `Bearer ${token}`
-            }
-        }),
-        [pdfUrl, token]
-    );
+    const file =
+        useMemo(
+            () => ({
+                url: pdfUrl,
+                httpHeaders: {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+            }),
+            [pdfUrl, token]
+        );
 
     useEffect(() => {
 
@@ -44,40 +49,90 @@ function DocumentPreview() {
 
     }, []);
 
-    const loadSignatures = async () => {
+    const loadSignatures =
+        async () => {
 
-        try {
+            try {
 
-            const response =
-                await axios.get(
-                    `http://localhost:8079/api/signatures/document/${id}`,
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`
+                const response =
+                    await axios.get(
+                        `http://localhost:8079/api/signatures/document/${id}`,
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bearer ${token}`
+                            }
                         }
-                    }
+                    );
+
+                setSignatures(
+                    response.data.slice(-1)
                 );
 
-            setSignatures(
-                response.data
-            );
+            } catch (error) {
 
-        } catch (error) {
+                console.log(error);
+            }
+        };
 
-            console.log(
-                "Error Loading Signatures",
-                error
-            );
-        }
-    };
+    const handlePdfClick =
+        (event) => {
+
+            const rect =
+                event.currentTarget
+                    .getBoundingClientRect();
+
+            setPosition({
+                x:
+                    event.clientX -
+                    rect.left,
+
+                y:
+                    event.clientY -
+                    rect.top
+            });
+        };
+
+    const handleSave =
+        async () => {
+
+            if (!position) {
+
+                alert(
+                    "Please select a position on PDF first"
+                );
+
+                return;
+            }
+
+            try {
+
+                await saveSignature(
+                    id,
+                    position.x,
+                    position.y
+                );
+
+                alert(
+                    "Signature Position Saved"
+                );
+
+                loadSignatures();
+
+            } catch (error) {
+
+                console.log(error);
+            }
+        };
 
     return (
 
         <div
             style={{
-                padding: "20px",
-                textAlign: "center"
+                textAlign:
+                    "center",
+                padding:
+                    "20px"
             }}
         >
 
@@ -85,28 +140,46 @@ function DocumentPreview() {
                 Document Preview
             </h1>
 
-            <div
+            <button
+                onClick={
+                    handleSave
+                }
                 style={{
-                    position: "relative",
-                    display: "inline-block"
+                    padding:
+                        "10px 20px",
+                    marginBottom:
+                        "20px",
+                    cursor:
+                        "pointer"
+                }}
+            >
+                Save Signature
+            </button>
+
+            <div
+                onClick={
+                    handlePdfClick
+                }
+                style={{
+                    position:
+                        "relative",
+                    display:
+                        "inline-block"
                 }}
             >
 
                 <Document
                     file={file}
-                    onLoadSuccess={({ numPages }) =>
-                        setNumPages(numPages)
-                    }
-                    onLoadError={(error) =>
-                        console.log(error)
+                    onLoadError={
+                        console.error
                     }
                 >
-
                     <Page
                         pageNumber={1}
                     />
-
                 </Document>
+
+                {/* Existing Saved Signatures */}
 
                 {
                     signatures.map(
@@ -117,18 +190,25 @@ function DocumentPreview() {
                                 style={{
                                     position:
                                         "absolute",
+
                                     left:
                                         sig.x,
+
                                     top:
                                         sig.y,
+
                                     backgroundColor:
                                         "red",
+
                                     color:
                                         "white",
+
                                     padding:
                                         "8px 15px",
+
                                     borderRadius:
                                         "5px",
+
                                     fontWeight:
                                         "bold"
                                 }}
@@ -136,6 +216,44 @@ function DocumentPreview() {
                                 Sign Here
                             </div>
                         )
+                    )
+                }
+
+                {/* Current Selected Position */}
+
+                {
+                    position && (
+
+                        <div
+                            style={{
+                                position:
+                                    "absolute",
+
+                                left:
+                                    position.x,
+
+                                top:
+                                    position.y,
+
+                                backgroundColor:
+                                    "blue",
+
+                                color:
+                                    "white",
+
+                                padding:
+                                    "8px 15px",
+
+                                borderRadius:
+                                    "5px",
+
+                                fontWeight:
+                                    "bold"
+                            }}
+                        >
+                            New Signature
+                        </div>
+
                     )
                 }
 
