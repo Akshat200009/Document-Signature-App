@@ -4,6 +4,8 @@ import java.io.File;
 import java.nio.file.Files;
 
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +63,27 @@ public class PdfController {
                                 + file.getName())
                 .contentLength(
                         data.length)
+                .contentType(
+                        MediaType.APPLICATION_PDF)
+                .body(resource);
+    }
+    @GetMapping("/signed-download/{documentId}")
+    public ResponseEntity<Resource> downloadSignedPdfEntity(
+            @PathVariable Long documentId)
+            throws Exception {
+
+        String path =
+                pdfService.generateSignedPdf(
+                        documentId);
+
+        FileSystemResource resource =
+                new FileSystemResource(
+                        path);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=signed.pdf")
                 .contentType(
                         MediaType.APPLICATION_PDF)
                 .body(resource);

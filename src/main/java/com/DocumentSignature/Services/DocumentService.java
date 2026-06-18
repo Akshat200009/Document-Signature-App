@@ -18,18 +18,23 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
     public DocumentService(
             DocumentRepository documentRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            AuditService auditService) {
 
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
+        this.auditService = auditService;
+
     }
 
     public String uploadDocument(
             MultipartFile file,
-            String email)
+            String email,
+            String ipAddress)
             throws IOException {
 
         User user =
@@ -77,6 +82,12 @@ public class DocumentService {
 
         documentRepository.save(
                 document);
+        
+        auditService.logAction(
+                "UPLOAD_DOCUMENT",
+                email,
+                ipAddress,
+                document.getId());
 
         return "Document Uploaded Successfully";
     }

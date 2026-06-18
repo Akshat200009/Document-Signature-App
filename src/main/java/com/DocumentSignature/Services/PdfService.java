@@ -21,14 +21,18 @@ import com.DocumentSignature.Repositories.SignatureRepository;
 public class PdfService {
 
     private final DocumentRepository documentRepository;
+
     private final SignatureRepository signatureRepository;
 
     public PdfService(
             DocumentRepository documentRepository,
             SignatureRepository signatureRepository) {
 
-        this.documentRepository = documentRepository;
-        this.signatureRepository = signatureRepository;
+        this.documentRepository =
+                documentRepository;
+
+        this.signatureRepository =
+                signatureRepository;
     }
 
     public String generateSignedPdf(
@@ -56,6 +60,12 @@ public class PdfService {
                         originalPdf);
 
         for (Signature signature : signatures) {
+
+            if (!"SIGNED".equalsIgnoreCase(
+                    signature.getStatus())) {
+
+                continue;
+            }
 
             PDPage page =
                     pdfDocument.getPage(
@@ -85,10 +95,6 @@ public class PdfService {
             contentStream.endText();
 
             contentStream.close();
-
-            // Update Signature Status
-            signature.setStatus(
-                    "SIGNED");
         }
 
         String signedPath =
@@ -103,11 +109,6 @@ public class PdfService {
 
         pdfDocument.close();
 
-        // Save Signature Statuses
-        signatureRepository.saveAll(
-                signatures);
-
-        // Update Document Status
         document.setStatus(
                 "SIGNED");
 

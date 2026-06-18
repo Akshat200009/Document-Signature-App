@@ -16,7 +16,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.DocumentSignature.Entities.Document;
+import com.DocumentSignature.Services.AuditService;
 import com.DocumentSignature.Services.DocumentService;
 
 @RestController
@@ -24,19 +27,21 @@ import com.DocumentSignature.Services.DocumentService;
 public class DocumentController {
 
     private final DocumentService documentService;
+    private final AuditService auditService;
 
     public DocumentController(
-            DocumentService documentService) {
+            DocumentService documentService,
+            AuditService auditService) {
 
-        this.documentService =
-                documentService;
+        this.documentService = documentService;
+        this.auditService = auditService;
     }
 
     // Upload Document
     @PostMapping("/upload")
     public ResponseEntity<String> uploadDocument(
-            @RequestParam("file")
-            MultipartFile file)
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request)
             throws IOException {
 
         Authentication authentication =
@@ -47,11 +52,14 @@ public class DocumentController {
         String email =
                 authentication.getName();
 
+        String ipAddress =
+                request.getRemoteAddr();
+
         return ResponseEntity.ok(
-                documentService
-                        .uploadDocument(
-                                file,
-                                email));
+                documentService.uploadDocument(
+                        file,
+                        email,
+                        ipAddress));
     }
 
     // All Documents
@@ -60,8 +68,7 @@ public class DocumentController {
     getAllDocuments() {
 
         return ResponseEntity.ok(
-                documentService
-                        .getAllDocuments());
+                documentService.getAllDocuments());
     }
 
     // Logged In User Documents
@@ -78,9 +85,8 @@ public class DocumentController {
                 authentication.getName();
 
         return ResponseEntity.ok(
-                documentService
-                        .getMyDocuments(
-                                email));
+                documentService.getMyDocuments(
+                        email));
     }
 
     // Document Details
@@ -90,20 +96,36 @@ public class DocumentController {
             @PathVariable Long id) {
 
         return ResponseEntity.ok(
-                documentService
-                        .getDocumentById(id));
+                documentService.getDocumentById(id));
     }
 
     // Download PDF
     @GetMapping("/download/{id}")
     public ResponseEntity<ByteArrayResource>
     downloadDocument(
-            @PathVariable Long id)
+            @PathVariable Long id,
+            HttpServletRequest request)
             throws Exception {
 
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        String email =
+                authentication.getName();
+
+        String ipAddress =
+                request.getRemoteAddr();
+
+        auditService.logAction(
+                "VIEW_DOCUMENT",
+                email,
+                ipAddress,
+                id);
+
         Document document =
-                documentService
-                        .getDocument(id);
+                documentService.getDocument(id);
 
         File file =
                 new File(

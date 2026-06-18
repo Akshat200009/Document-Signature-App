@@ -40,7 +40,11 @@ function Dashboard() {
             <h1>
                 My Documents
             </h1>
-
+               <button
+    onClick={() => navigate("/upload")}
+>
+    Upload PDF
+</button>
             <table border="1">
 
                 <thead>

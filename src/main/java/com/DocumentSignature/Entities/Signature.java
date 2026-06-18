@@ -17,6 +17,8 @@ public class Signature {
     private Integer page;
 
     private String status;
+    
+    private String rejectionReason;
 
     @ManyToOne
     @JoinColumn(name = "document_id")
@@ -80,5 +82,16 @@ public class Signature {
 
     public void setSigner(User signer) {
         this.signer = signer;
+    }
+    
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(
+            String rejectionReason) {
+
+        this.rejectionReason =
+                rejectionReason;
     }
 }

@@ -41,7 +41,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**",
                                 "/api/test",
                                 "/api/documents/upload",
-                                "/api/documents/download/**"
+                                "/api/documents/download/**",
+                                "/api/public/**",
+                                "/api/pdf/signed-download/**"
                                )
 
                         .permitAll()

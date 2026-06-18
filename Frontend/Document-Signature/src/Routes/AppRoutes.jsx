@@ -10,6 +10,11 @@ from "../Pages/Login";
 import Register
 from "../Pages/Register";
 
+import UploadDocument
+from "../Pages/UploadDocument";
+
+import PublicSign
+ from "../Pages/PublicSign";
 
 import Dashboard
 from "../Pages/Dashboard";
@@ -42,8 +47,14 @@ function AppRoutes() {
                     path="/register"
                     element={<Register />}
                 />
-
-
+                <Route
+    path="/public-sign/:token"
+    element={<PublicSign />}
+/>
+           <Route
+    path="/upload"
+    element={<UploadDocument />}
+/>
             <Route
                 path="/preview/:id"
                 element={<DocumentPreview />}
