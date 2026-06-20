@@ -41,7 +41,7 @@ const [fontFamily,
     useState("cursive");
 
     const pdfUrl =
-        `http://localhost:8079/api/documents/download/${id}`;
+    `https://document-signature-app-vptj.onrender.com/api/documents/download/${id}`;
 
     const file =
         useMemo(
@@ -72,8 +72,8 @@ const [fontFamily,
         try {
 
             const response =
-                await axios.get(
-                    `http://localhost:8079/api/signatures/document/${id}`,
+               await axios.get(
+    `https://document-signature-app-vptj.onrender.com/api/signatures/document/${id}`,
                     {
                         headers: {
                             Authorization:
@@ -303,10 +303,10 @@ return (
 
                             <button
     onClick={() =>
-        window.open(
-            `http://localhost:8079/api/documents/download-signed/${id}`,
-            "_blank"
-        )
+       window.open(
+    `https://document-signature-app-vptj.onrender.com/api/documents/download-signed/${id}`,
+    "_blank"
+)
     }
     className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold"
 >

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_URL =
-    "http://localhost:8079/api/documents";
+    "https://document-signature-app-vptj.onrender.com/api";
 
 const getToken = () => {
     return localStorage.getItem("token");
@@ -18,7 +18,7 @@ export const uploadDocument =
     (formData) => {
 
         return axios.post(
-            `${API_URL}/upload`,
+            `${API_URL}/documents/upload`,
             formData,
             authHeader()
         );
@@ -28,7 +28,7 @@ export const getMyDocuments =
     () => {
 
         return axios.get(
-            `${API_URL}/my`,
+            `${API_URL}/documents/my`,
             authHeader()
         );
     };
@@ -37,7 +37,7 @@ export const getDocumentById =
     (id) => {
 
         return axios.get(
-            `${API_URL}/details/${id}`,
+            `${API_URL}/documents/details/${id}`,
             authHeader()
         );
     };
@@ -45,7 +45,7 @@ export const getDocumentById =
 export const getPdfUrl =
     (id) => {
 
-        return `${API_URL}/download/${id}`;
+        return `${API_URL}/documents/download/${id}`;
     };
 
 export const saveSignature =
@@ -59,7 +59,7 @@ export const saveSignature =
     ) => {
 
         return axios.post(
-            "http://localhost:8079/api/signatures",
+            `${API_URL}/signatures`,
             {
                 documentId,
                 x,
@@ -75,7 +75,7 @@ export const saveSignature =
     export const rejectDocument = (id) => {
 
     return axios.put(
-        `http://localhost:8079/api/documents/reject/${id}`,
+        `${API_URL}/documents/reject/${id}`,
         {},
         authHeader()
     );
@@ -84,7 +84,7 @@ export const sendSigningLink =
     (documentId, email) => {
 
         return axios.post(
-            `http://localhost:8079/api/public/create-link/${documentId}`,
+            `${API_URL}/public/create-link/${documentId}`,
             {
                 email
             },
@@ -95,7 +95,7 @@ export const sendSigningLink =
     (id) => {
 
         return axios.delete(
-            `${API_URL}/${id}`,
+            `${API_URL}/documents/${id}`,
             authHeader()
         );
     };

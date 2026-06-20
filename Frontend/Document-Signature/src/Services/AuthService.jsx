@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const API_URL =
-    "http://localhost:8079/api/auth";
-
+    "https://document-signature-app-vptj.onrender.com/api/auth";
+    
 export const registerUser = (
     userData) => {
 

@@ -22,9 +22,9 @@ function PublicSign() {
             try {
 
                 const response =
-                    await axios.get(
-                        `http://localhost:8079/api/public/document/${token}`
-                    );
+                   await axios.get(
+    `https://document-signature-app-vptj.onrender.com/api/public/document/${token}`
+);
 
                 setDocumentData(
                     response.data
@@ -45,9 +45,9 @@ function PublicSign() {
 
             try {
 
-                await axios.post(
-                    `http://localhost:8079/api/public/sign/${token}/${signatureId}`
-                );
+               await axios.post(
+    `https://document-signature-app-vptj.onrender.com/api/public/sign/${token}/${signatureId}`
+);
 
                 alert(
                     "Document Signed Successfully"
@@ -80,8 +80,8 @@ function PublicSign() {
 
             try {
 
-                await axios.post(
-                    `http://localhost:8079/api/public/reject/${token}`,
+             await axios.post(
+    `https://document-signature-app-vptj.onrender.com/api/public/reject/${token}`,
                     {
                         reason
                     }
