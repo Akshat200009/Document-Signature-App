@@ -28,37 +28,51 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http)
             throws Exception {
-
-        http
+//
+//        http
+//        .cors(Customizer.withDefaults())
+//        .csrf(csrf -> csrf.disable())
+//
+//                .sessionManagement(session ->
+//                        session.sessionCreationPolicy(
+//                                SessionCreationPolicy.STATELESS))
+//
+//                .authorizeHttpRequests(auth -> auth .anyRequest()
+////                        .requestMatchers("/api/auth/**",
+////                                "/api/test",
+////                                "/api/documents/upload",
+////                                "/api/documents/download/**",
+////                                "/api/public/**",
+////                                "/api/pdf/signed-download/**",
+////                                "/api/documents/download-signed/**",
+////                                "/api/documents/reject/**",
+////                                "/api/documents/**"
+////                               )
+//
+//                        .permitAll()
+//
+//                        .anyRequest()
+//                        .authenticated())
+////
+////                .addFilterBefore(
+////                        jwtFilter,
+////                        UsernamePasswordAuthenticationFilter.class)
+//
+//                .httpBasic(Customizer.withDefaults());
+    	
+    	http
         .cors(Customizer.withDefaults())
         .csrf(csrf -> csrf.disable())
 
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS))
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(
+                SessionCreationPolicy.STATELESS))
 
-                .authorizeHttpRequests(auth -> auth .anyRequest()
-//                        .requestMatchers("/api/auth/**",
-//                                "/api/test",
-//                                "/api/documents/upload",
-//                                "/api/documents/download/**",
-//                                "/api/public/**",
-//                                "/api/pdf/signed-download/**",
-//                                "/api/documents/download-signed/**",
-//                                "/api/documents/reject/**",
-//                                "/api/documents/**"
-//                               )
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().permitAll()
+        )
 
-                        .permitAll()
-
-                        .anyRequest()
-                        .authenticated())
-//
-//                .addFilterBefore(
-//                        jwtFilter,
-//                        UsernamePasswordAuthenticationFilter.class)
-
-                .httpBasic(Customizer.withDefaults());
+        .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
