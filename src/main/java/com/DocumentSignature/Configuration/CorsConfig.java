@@ -19,14 +19,18 @@ public class CorsConfig {
 
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "http://localhost:5173")
+                                "http://localhost:5173",
+                                "https://document-signature-app-gamma-ivory.vercel.app"
+                        )
                         .allowedMethods(
                                 "GET",
                                 "POST",
                                 "PUT",
                                 "DELETE",
-                                "OPTIONS")
-                        .allowedHeaders("*");
+                                "OPTIONS"
+                        )
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
