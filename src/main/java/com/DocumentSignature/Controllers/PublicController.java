@@ -25,208 +25,129 @@ import com.DocumentSignature.Services.TokenService;
 @RequestMapping("/api/public")
 public class PublicController {
 
-    private final DocumentRepository documentRepository;
+	private final DocumentRepository documentRepository;
 
-    private final TokenService tokenService;
+	private final TokenService tokenService;
 
-    private final SigningTokenRepository tokenRepository;
+	private final SigningTokenRepository tokenRepository;
 
-    private final SignatureRepository signatureRepository;
-    
-    private final AuditService auditService;
-    
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private PdfService pdfService;
+	private final SignatureRepository signatureRepository;
 
-    public PublicController(
-            DocumentRepository documentRepository,
-            TokenService tokenService,
-            SigningTokenRepository tokenRepository,
-            SignatureRepository signatureRepository,
-            AuditService auditService) {
+	private final AuditService auditService;
 
-        this.documentRepository = documentRepository;
-        this.tokenService = tokenService;
-        this.tokenRepository = tokenRepository;
-        this.signatureRepository = signatureRepository;
-        this.auditService = auditService;
+	@Autowired
+	private EmailService emailService;
+	@Autowired
+	private PdfService pdfService;
 
-    }
+	public PublicController(DocumentRepository documentRepository, TokenService tokenService,
+			SigningTokenRepository tokenRepository, SignatureRepository signatureRepository,
+			AuditService auditService) {
 
-    @PostMapping("/create-link/{documentId}")
-    public ResponseEntity<String> createLink(
-            @PathVariable Long documentId,
-            @RequestBody EmailRequest request) {
+		this.documentRepository = documentRepository;
+		this.tokenService = tokenService;
+		this.tokenRepository = tokenRepository;
+		this.signatureRepository = signatureRepository;
+		this.auditService = auditService;
 
-        Document document =
-                documentRepository.findById(documentId)
-                        .orElseThrow();
+	}
 
-        String token =
-                tokenService.createToken(
-                        document,
-                        request.getEmail());
+	@PostMapping("/create-link/{documentId}")
+	public ResponseEntity<String> createLink(@PathVariable Long documentId, @RequestBody EmailRequest request) {
 
-        String link =
-                "http://localhost:5173/public-sign/"
-                        + token;
+		Document document = documentRepository.findById(documentId).orElseThrow();
 
-        emailService.sendSigningLink(
-                request.getEmail(),
-                link);
+		String token = tokenService.createToken(document, request.getEmail());
+		String link = "https://document-signature-app-gamma-ivory.vercel.app/public-sign/" + token;
+		emailService.sendSigningLink(request.getEmail(), link);
 
-        return ResponseEntity.ok(
-                "Email sent successfully");
-    }
-    
-    @GetMapping("/document/{token}")
-    public ResponseEntity<PublicDocumentResponse>
-    getDocumentByToken(
-            @PathVariable String token) {
+		return ResponseEntity.ok("Email sent successfully");
+	}
 
-        SigningToken signingToken =
-                tokenRepository
-                        .findByToken(token)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Invalid Token"));
+	@GetMapping("/document/{token}")
+	public ResponseEntity<PublicDocumentResponse> getDocumentByToken(@PathVariable String token) {
 
-        Document document =
-                signingToken.getDocument();
+		SigningToken signingToken = tokenRepository.findByToken(token)
+				.orElseThrow(() -> new RuntimeException("Invalid Token"));
 
-        List<Signature> signatures =
-                signatureRepository
-                        .findByDocument(document);
+		Document document = signingToken.getDocument();
 
-        List<SignatureResponse> responseList =
-                signatures.stream()
-                        .map(signature -> {
+		List<Signature> signatures = signatureRepository.findByDocument(document);
 
-                            SignatureResponse dto =
-                                    new SignatureResponse();
+		List<SignatureResponse> responseList = signatures.stream().map(signature -> {
 
-                            dto.setId(
-                                    signature.getId());
+			SignatureResponse dto = new SignatureResponse();
 
-                            dto.setX(
-                                    signature.getX());
+			dto.setId(signature.getId());
 
-                            dto.setY(
-                                    signature.getY());
+			dto.setX(signature.getX());
 
-                            dto.setPage(
-                                    signature.getPage());
+			dto.setY(signature.getY());
 
-                            dto.setStatus(
-                                    signature.getStatus());
-                            
-                            dto.setRejectionReason(
-                                    signature
-                                            .getRejectionReason());
+			dto.setPage(signature.getPage());
 
-                            return dto;
+			dto.setStatus(signature.getStatus());
 
-                        })
-                        .toList();
+			dto.setRejectionReason(signature.getRejectionReason());
 
-        PublicDocumentResponse response =
-                new PublicDocumentResponse();
+			return dto;
 
-        response.setDocumentId(
-                document.getId());
+		}).toList();
 
-        response.setPdfUrl(
-                "/api/documents/download/"
-                        + document.getId());
+		PublicDocumentResponse response = new PublicDocumentResponse();
 
-        response.setSignatures(
-                responseList);
+		response.setDocumentId(document.getId());
 
-        return ResponseEntity.ok(
-                response);
-    }
-    @PostMapping("/sign/{token}/{signatureId}")
-    public ResponseEntity<String> signDocument(
-            @PathVariable String token,
-            @PathVariable Long signatureId)
-            throws Exception {
+		response.setPdfUrl("/api/documents/download/" + document.getId());
 
-        SigningToken signingToken =
-                tokenRepository
-                        .findByToken(token)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Invalid Token"));
+		response.setSignatures(responseList);
 
-        Signature signature =
-                signatureRepository
-                        .findById(signatureId)
-                        .orElseThrow();
+		return ResponseEntity.ok(response);
+	}
 
-        signature.setStatus("SIGNED");
-        signatureRepository.save(signature);
+	@PostMapping("/sign/{token}/{signatureId}")
+	public ResponseEntity<String> signDocument(@PathVariable String token, @PathVariable Long signatureId)
+			throws Exception {
 
-        // Update document status
-        Document document = signature.getDocument();
+		SigningToken signingToken = tokenRepository.findByToken(token)
+				.orElseThrow(() -> new RuntimeException("Invalid Token"));
 
-        document.setStatus("SIGNED");
+		Signature signature = signatureRepository.findById(signatureId).orElseThrow();
 
-        documentRepository.save(document);
-        
-        auditService.logAction(
-                "SIGN_DOCUMENT",
-                signingToken.getSignerEmail(),
-                "PUBLIC_LINK",
-                signingToken.getDocument().getId());
+		signature.setStatus("SIGNED");
+		signatureRepository.save(signature);
 
-        pdfService.generateSignedPdf(
-                signature.getDocument()
-                         .getId());
+		// Update document status
+		Document document = signature.getDocument();
 
-        return ResponseEntity.ok(
-                "Signed Successfully");
-    }
-    @PostMapping("/reject/{token}")
-    public ResponseEntity<String>
-    rejectDocument(
-            @PathVariable String token,
-            @RequestBody RejectRequest request) {
+		document.setStatus("SIGNED");
 
+		documentRepository.save(document);
 
-        SigningToken signingToken =
-                tokenRepository
-                        .findByToken(token)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Invalid Token"));
+		auditService.logAction("SIGN_DOCUMENT", signingToken.getSignerEmail(), "PUBLIC_LINK",
+				signingToken.getDocument().getId());
 
+		pdfService.generateSignedPdf(signature.getDocument().getId());
 
-        Document document =
-                signingToken.getDocument();
+		return ResponseEntity.ok("Signed Successfully");
+	}
 
+	@PostMapping("/reject/{token}")
+	public ResponseEntity<String> rejectDocument(@PathVariable String token, @RequestBody RejectRequest request) {
 
-        document.setStatus(
-                "REJECTED");
+		SigningToken signingToken = tokenRepository.findByToken(token)
+				.orElseThrow(() -> new RuntimeException("Invalid Token"));
 
+		Document document = signingToken.getDocument();
 
-        document.setRejectionReason(
-                request.getReason());
+		document.setStatus("REJECTED");
 
+		document.setRejectionReason(request.getReason());
 
-        documentRepository.save(
-                document);
+		documentRepository.save(document);
 
+		auditService.logAction("REJECT_DOCUMENT", signingToken.getSignerEmail(), "PUBLIC_LINK", document.getId());
 
-        auditService.logAction(
-                "REJECT_DOCUMENT",
-                signingToken.getSignerEmail(),
-                "PUBLIC_LINK",
-                document.getId());
-
-
-        return ResponseEntity.ok(
-                "Document Rejected");
-    }
+		return ResponseEntity.ok("Document Rejected");
+	}
 }
