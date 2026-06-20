@@ -37,26 +37,26 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS))
 
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**",
-                                "/api/test",
-                                "/api/documents/upload",
-                                "/api/documents/download/**",
-                                "/api/public/**",
-                                "/api/pdf/signed-download/**",
-                                "/api/documents/download-signed/**",
-                                "/api/documents/reject/**",
-                                "/api/documents/**"
-                               )
+                .authorizeHttpRequests(auth -> auth .anyRequest()
+//                        .requestMatchers("/api/auth/**",
+//                                "/api/test",
+//                                "/api/documents/upload",
+//                                "/api/documents/download/**",
+//                                "/api/public/**",
+//                                "/api/pdf/signed-download/**",
+//                                "/api/documents/download-signed/**",
+//                                "/api/documents/reject/**",
+//                                "/api/documents/**"
+//                               )
 
                         .permitAll()
 
                         .anyRequest()
                         .authenticated())
-
-                .addFilterBefore(
-                        jwtFilter,
-                        UsernamePasswordAuthenticationFilter.class)
+//
+//                .addFilterBefore(
+//                        jwtFilter,
+//                        UsernamePasswordAuthenticationFilter.class)
 
                 .httpBasic(Customizer.withDefaults());
 
