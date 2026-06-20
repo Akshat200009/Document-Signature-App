@@ -2,6 +2,7 @@ package com.DocumentSignature.Entities;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,6 +22,28 @@ public class Document {
 	private String filepath;
 	private String status;
 	private LocalDateTime uploadedAt;
+	
+	@Column(name="signed_filepath")
+	private String signedFilepath;
+	
+	public String getSignedFilepath() {
+		return signedFilepath;
+	}
+
+	public void setSignedFilepath(String signedFilepath) {
+		this.signedFilepath = signedFilepath;
+	}
+
+	@Column(length = 500)
+	private String rejectionReason;
+
+	public String getRejectionReason() {
+		return rejectionReason;
+	}
+
+	public void setRejectionReason(String rejectionReason) {
+		this.rejectionReason = rejectionReason;
+	}
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")

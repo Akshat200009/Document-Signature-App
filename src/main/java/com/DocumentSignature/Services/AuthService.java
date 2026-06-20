@@ -61,11 +61,12 @@ public class AuthService {
         if (!passwordMatched) {
             throw new RuntimeException("Invalid Credentials");
         }
-
         String token =
                 jwtService.generateToken(
                         user.getEmail());
 
-        return new LoginResponse(token);
-    }
+        return new LoginResponse(
+                token,
+                user.getName(),
+                user.getEmail());    }
 }

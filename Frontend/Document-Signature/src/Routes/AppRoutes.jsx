@@ -29,7 +29,7 @@ function AppRoutes() {
         <Routes>
 
             <Route
-                path="/"
+                path="/home"
                 element={<Home />}
             />
 
@@ -42,7 +42,7 @@ function AppRoutes() {
                     path="/login"
                     element={<Login />}
                 />
-
+                      
                 <Route
                     path="/register"
                     element={<Register />}

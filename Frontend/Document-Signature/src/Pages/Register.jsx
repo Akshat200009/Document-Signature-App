@@ -1,44 +1,52 @@
 import { useState } from "react";
-import { registerUser }
-    from "../Services/AuthService";
-
-import { useNavigate }
-    from "react-router-dom";
+import { registerUser } from "../Services/AuthService";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+
+    const [name, setName] =
+        useState("");
+
+    const [email, setEmail] =
+        useState("");
+
+    const [password, setPassword] =
+        useState("");
+
+    const [confirmPassword,
+        setConfirmPassword] =
+        useState("");
 
     const navigate =
         useNavigate();
 
-    const [user, setUser] =
-        useState({
-
-            name: "",
-            email: "",
-            password: ""
-        });
-
-    const handleChange = (e) => {
-
-        setUser({
-
-            ...user,
-            [e.target.name]:
-                e.target.value
-        });
-    };
-
-    const handleSubmit =
+    const handleRegister =
         async (e) => {
 
             e.preventDefault();
 
-            try {
-
-                await registerUser(user);
+            if (
+                password !==
+                confirmPassword
+            ) {
 
                 alert(
-                    "Registration Successful"
+                    "Passwords do not match"
+                );
+
+                return;
+            }
+
+            try {
+
+                await registerUser({
+                    name,
+                    email,
+                    password
+                });
+
+                alert(
+                    "Register Successful"
                 );
 
                 navigate("/login");
@@ -48,6 +56,7 @@ function Register() {
                 console.log(error);
 
                 alert(
+                    error.response?.data ||
                     "Registration Failed"
                 );
             }
@@ -55,61 +64,100 @@ function Register() {
 
     return (
 
-        <div>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-600 to-blue-700">
 
-            <h1>
-                Register
-            </h1>
+            <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md">
 
-            <form
-                onSubmit={
-                    handleSubmit
-                }>
+                <h1 className="text-4xl font-bold text-center text-gray-800 mb-2">
+                    Create Account
+                </h1>
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Name"
-                    onChange={
-                        handleChange
-                    }
-                />
+                <p className="text-center text-gray-500 mb-8">
+                    Register to continue
+                </p>
 
-                <br />
-                <br />
+                <form
+                    onSubmit={handleRegister}
+                    className="space-y-5"
+                >
 
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    onChange={
-                        handleChange
-                    }
-                />
+                    <input
+                        type="text"
+                        placeholder="Full Name"
+                        value={name}
+                        onChange={(e) =>
+                            setName(
+                                e.target.value
+                            )
+                        }
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
 
-                <br />
-                <br />
+                    <input
+                        type="email"
+                        placeholder="Email Address"
+                        value={email}
+                        onChange={(e) =>
+                            setEmail(
+                                e.target.value
+                            )
+                        }
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
 
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    onChange={
-                        handleChange
-                    }
-                />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) =>
+                            setPassword(
+                                e.target.value
+                            )
+                        }
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
 
-                <br />
-                <br />
+                    <input
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) =>
+                            setConfirmPassword(
+                                e.target.value
+                            )
+                        }
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
 
-                <button
-                    type="submit">
+                    <button
+                        type="submit"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition duration-300"
+                    >
+                        Register
+                    </button>
 
-                    Register
+                </form>
 
-                </button>
+                <p className="text-center mt-6 text-gray-600">
 
-            </form>
+                    Already have an account?
+
+                    <span
+                        onClick={() =>
+                            navigate("/login")
+                        }
+                        className="text-blue-600 font-semibold cursor-pointer ml-1 hover:underline"
+                    >
+                        Login
+                    </span>
+
+                </p>
+
+            </div>
 
         </div>
     );

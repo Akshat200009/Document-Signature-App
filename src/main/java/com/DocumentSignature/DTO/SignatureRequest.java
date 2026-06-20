@@ -9,8 +9,28 @@ public class SignatureRequest {
     private Double y;
 
     private Integer page;
+    
+    private String signatureText;
 
-    public Long getDocumentId() {
+    private String fontFamily;
+
+    public String getSignatureText() {
+		return signatureText;
+	}
+
+	public void setSignatureText(String signatureText) {
+		this.signatureText = signatureText;
+	}
+
+	public String getFontFamily() {
+		return fontFamily;
+	}
+
+	public void setFontFamily(String fontFamily) {
+		this.fontFamily = fontFamily;
+	}
+
+	public Long getDocumentId() {
         return documentId;
     }
 

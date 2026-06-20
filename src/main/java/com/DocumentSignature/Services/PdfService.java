@@ -58,7 +58,6 @@ public class PdfService {
         PDDocument pdfDocument =
                 Loader.loadPDF(
                         originalPdf);
-
         for (Signature signature : signatures) {
 
             if (!"SIGNED".equalsIgnoreCase(
@@ -78,19 +77,73 @@ public class PdfService {
                             PDPageContentStream.AppendMode.APPEND,
                             true);
 
-            contentStream.beginText();
+            String text =
+                    signature.getSignatureText();
 
-            contentStream.setFont(
-                    new PDType1Font(
-                            Standard14Fonts.FontName.HELVETICA_BOLD),
-                    12);
+            if (text == null || text.isBlank()) {
+
+                text = "Signed";
+            }
+
+            System.out.println(
+                    "PDF TEXT = " + text);
+
+            contentStream.beginText();
+            if ("serif".equalsIgnoreCase(
+                    signature.getFontFamily())) {
+
+                contentStream.setFont(
+                        new PDType1Font(
+                                Standard14Fonts.FontName.TIMES_ROMAN),
+                        20);
+
+            }
+            else if ("monospace".equalsIgnoreCase(
+                    signature.getFontFamily())) {
+
+                contentStream.setFont(
+                        new PDType1Font(
+                                Standard14Fonts.FontName.COURIER_BOLD),
+                        20);
+
+            }
+            else if ("cursive".equalsIgnoreCase(
+                    signature.getFontFamily())) {
+
+                contentStream.setFont(
+                        new PDType1Font(
+                                Standard14Fonts.FontName.TIMES_BOLD_ITALIC),
+                        20);
+
+            }
+            else if ("fantasy".equalsIgnoreCase(
+                    signature.getFontFamily())) {
+
+                contentStream.setFont(
+                        new PDType1Font(
+                                Standard14Fonts.FontName.HELVETICA_OBLIQUE),
+                        20);
+
+            }
+            else {
+
+                contentStream.setFont(
+                        new PDType1Font(
+                                Standard14Fonts.FontName.HELVETICA_BOLD),
+                        20);
+            }
+            float pdfX =
+                    signature.getX().floatValue();
+
+            float pdfY =
+                    page.getMediaBox().getHeight()
+                    - signature.getY().floatValue();
 
             contentStream.newLineAtOffset(
-                    signature.getX().floatValue(),
-                    signature.getY().floatValue());
+                    pdfX,
+                    pdfY);
 
-            contentStream.showText(
-                    "Signed By Akshat Mehta");
+            contentStream.showText(text);
 
             contentStream.endText();
 
@@ -110,10 +163,14 @@ public class PdfService {
         pdfDocument.close();
 
         document.setStatus(
+        		
                 "SIGNED");
+        document.setSignedFilepath(
+                signedPath);
 
         documentRepository.save(
                 document);
+
 
         return signedPath;
     }

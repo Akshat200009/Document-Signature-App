@@ -150,4 +150,60 @@ public class DocumentController {
                         MediaType.APPLICATION_PDF)
                 .body(resource);
     }
+    @PutMapping("/reject/{id}")
+    public ResponseEntity<String> rejectDocument(
+            @PathVariable Long id) {
+
+        Document document =
+                documentService.getDocument(id);
+
+        document.setStatus("REJECTED");
+
+        documentService.save(document);
+
+        return ResponseEntity.ok(
+                "Document Rejected Successfully");
+    }
+    @GetMapping("/download-signed/{id}")
+    public ResponseEntity<ByteArrayResource>
+    downloadSignedPdf(
+            @PathVariable Long id)
+            throws Exception {
+
+        Document document =
+                documentService
+                        .getDocument(id);
+
+        File file =
+                new File(
+                        document.getSignedFilepath());
+
+        byte[] data =
+                Files.readAllBytes(
+                        file.toPath());
+
+        ByteArrayResource resource =
+                new ByteArrayResource(
+                        data);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=signed_"
+                                + document.getFilename())
+                .contentLength(
+                        data.length)
+                .contentType(
+                        MediaType.APPLICATION_PDF)
+                .body(resource);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteDocument(
+            @PathVariable Long id) {
+
+        documentService.deleteDocument(id);
+
+        return ResponseEntity.ok(
+                "Document Deleted Successfully");
+    }
 }

@@ -43,7 +43,8 @@ public class SecurityConfig {
                                 "/api/documents/upload",
                                 "/api/documents/download/**",
                                 "/api/public/**",
-                                "/api/pdf/signed-download/**"
+                                "/api/pdf/signed-download/**",
+                                "/api/documents/download-signed/**"
                                )
 
                         .permitAll()

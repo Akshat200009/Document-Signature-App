@@ -18,15 +18,19 @@ public class SignatureService {
     private final SignatureRepository signatureRepository;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
+    private final PdfService pdfService;
 
     public SignatureService(
             SignatureRepository signatureRepository,
             DocumentRepository documentRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PdfService pdfService) {
 
         this.signatureRepository = signatureRepository;
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
+        this.pdfService = pdfService;
+
     }
 
     public String saveSignature(
@@ -56,10 +60,42 @@ public class SignatureService {
         signature.setX(request.getX());
         signature.setY(request.getY());
         signature.setPage(request.getPage());
+        
+        System.out.println(
+        	    "PAGE = " + request.getPage());
 
-        signature.setStatus("Signed");
+        // NEW FIELDS
+        signature.setSignatureText(
+                request.getSignatureText());
+
+        signature.setFontFamily(
+                request.getFontFamily());
+
+        signature.setStatus("SIGNED");
+        
+        System.out.println(
+                "TEXT = "
+                + request.getSignatureText());
+
+        System.out.println(
+                "FONT = "
+                + request.getFontFamily());
 
         signatureRepository.save(signature);
+
+        document.setStatus("SIGNED");
+
+        documentRepository.save(document);
+
+        try {
+
+            pdfService.generateSignedPdf(
+                    document.getId());
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
 
         return "Signature Saved Successfully";
     }

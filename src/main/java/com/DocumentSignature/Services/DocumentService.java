@@ -9,9 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.DocumentSignature.Entities.Document;
+import com.DocumentSignature.Entities.Signature;
 import com.DocumentSignature.Entities.User;
 import com.DocumentSignature.Repositories.DocumentRepository;
+import com.DocumentSignature.Repositories.SignatureRepository;
 import com.DocumentSignature.Repositories.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class DocumentService {
@@ -19,15 +23,18 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final SignatureRepository signatureRepository;
 
     public DocumentService(
             DocumentRepository documentRepository,
             UserRepository userRepository,
-            AuditService auditService) {
+            AuditService auditService,
+            SignatureRepository signatureRepository) {
 
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
         this.auditService = auditService;
+        this.signatureRepository = signatureRepository;
 
     }
 
@@ -58,7 +65,9 @@ public class DocumentService {
 
         String filePath =
                 uploadDir
-                        + file.getOriginalFilename();
+                + System.currentTimeMillis()
+                + "_"
+                + file.getOriginalFilename();
 
         file.transferTo(
                 new File(filePath));
@@ -73,7 +82,7 @@ public class DocumentService {
                 filePath);
 
         document.setStatus(
-                "SIGNED");
+                "PENDING");
 
         document.setUploadedAt(
                 LocalDateTime.now());
@@ -129,5 +138,56 @@ public class DocumentService {
 
         return documentRepository
                 .findByUser(user);
+    }
+    public Document save(
+            Document document) {
+
+        return documentRepository.save(
+                document);
+    }
+    @Transactional
+    public void deleteDocument(
+            Long id) {
+
+        Document document =
+                documentRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Document Not Found"));
+
+        List<Signature> signatures =
+                signatureRepository
+                        .findByDocument(document);
+
+        signatureRepository.deleteAll(
+                signatures);
+
+        // Delete original PDF
+        File pdfFile =
+                new File(
+                        document.getFilepath());
+
+        if (pdfFile.exists()) {
+
+            pdfFile.delete();
+        }
+
+        // Delete signed PDF
+        if (document.getSignedFilepath()
+                != null) {
+
+            File signedFile =
+                    new File(
+                            document.getSignedFilepath());
+
+            if (signedFile.exists()) {
+
+                signedFile.delete();
+            }
+        }
+
+        documentRepository.delete(
+                document);
     }
 }

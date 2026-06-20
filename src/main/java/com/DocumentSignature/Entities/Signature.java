@@ -19,8 +19,28 @@ public class Signature {
     private String status;
     
     private String rejectionReason;
+    
+    private String signatureText;
 
-    @ManyToOne
+    private String fontFamily;
+
+    public String getSignatureText() {
+		return signatureText;
+	}
+
+	public void setSignatureText(String signatureText) {
+		this.signatureText = signatureText;
+	}
+
+	public String getFontFamily() {
+		return fontFamily;
+	}
+
+	public void setFontFamily(String fontFamily) {
+		this.fontFamily = fontFamily;
+	}
+
+	@ManyToOne
     @JoinColumn(name = "document_id")
     private Document document;
 

@@ -65,8 +65,8 @@ function PublicSign() {
             }
         };
 
-    const rejectDocument =
-        async (signatureId) => {
+    const rejectDoc =
+        async () => {
 
             const reason =
                 prompt(
@@ -81,14 +81,14 @@ function PublicSign() {
             try {
 
                 await axios.post(
-                    `http://localhost:8079/api/public/reject/${token}/${signatureId}`,
+                    `http://localhost:8079/api/public/reject/${token}`,
                     {
                         reason
                     }
                 );
 
                 alert(
-                    "Document Rejected"
+                    "Document Rejected Successfully"
                 );
 
                 loadDocument();
@@ -138,16 +138,17 @@ function PublicSign() {
                             key={sig.id}
                             style={{
                                 border:
-                                    "1px solid black",
-
+                                    "1px solid #ddd",
+                                borderRadius:
+                                    "10px",
                                 padding:
-                                    "15px",
-
+                                    "20px",
                                 marginBottom:
-                                    "15px",
-
+                                    "20px",
                                 width:
-                                    "350px"
+                                    "400px",
+                                boxShadow:
+                                    "0 2px 10px rgba(0,0,0,0.1)"
                             }}
                         >
 
@@ -158,7 +159,7 @@ function PublicSign() {
                             </h3>
 
                             <p>
-                                Status :
+                                <strong>Status:</strong>
                                 {" "}
                                 {sig.status}
                             </p>
@@ -184,31 +185,65 @@ function PublicSign() {
                                 sig.status ===
                                 "PENDING" && (
 
-                                    <>
+                                    <div
+                                        style={{
+                                            display:
+                                                "flex",
+                                            gap:
+                                                "10px",
+                                            marginTop:
+                                                "15px"
+                                        }}
+                                    >
+
                                         <button
                                             onClick={() =>
                                                 signDocument(
                                                     sig.id
                                                 )
                                             }
+                                            style={{
+                                                background:
+                                                    "#16a34a",
+                                                color:
+                                                    "white",
+                                                border:
+                                                    "none",
+                                                padding:
+                                                    "10px 20px",
+                                                borderRadius:
+                                                    "6px",
+                                                cursor:
+                                                    "pointer"
+                                            }}
                                         >
-                                            Sign Here
+                                            Sign Document
                                         </button>
 
                                         <button
-                                            style={{
-                                                marginLeft:
-                                                    "10px"
-                                            }}
-                                            onClick={() =>
-                                                rejectDocument(
-                                                    sig.id
-                                                )
+                                            onClick={
+                                                rejectDoc
                                             }
+                                            style={{
+                                                background:
+                                                    "#dc2626",
+                                                color:
+                                                    "white",
+                                                border:
+                                                    "none",
+                                                padding:
+                                                    "10px 20px",
+                                                borderRadius:
+                                                    "6px",
+                                                cursor:
+                                                    "pointer"
+                                            }}
                                         >
-                                            Reject
+                                            Reject Document
                                         </button>
-                                    </>
+
+                                    </div>
+
                                 )
                             }
 
@@ -218,6 +253,18 @@ function PublicSign() {
 
                                     <button
                                         disabled
+                                        style={{
+                                            background:
+                                                "#16a34a",
+                                            color:
+                                                "white",
+                                            border:
+                                                "none",
+                                            padding:
+                                                "10px 20px",
+                                            borderRadius:
+                                                "6px"
+                                        }}
                                     >
                                         Signed
                                     </button>
@@ -231,6 +278,18 @@ function PublicSign() {
 
                                     <button
                                         disabled
+                                        style={{
+                                            background:
+                                                "#dc2626",
+                                            color:
+                                                "white",
+                                            border:
+                                                "none",
+                                            padding:
+                                                "10px 20px",
+                                            borderRadius:
+                                                "6px"
+                                        }}
                                     >
                                         Rejected
                                     </button>
@@ -245,6 +304,7 @@ function PublicSign() {
             }
 
         </div>
+
     );
 }
 

@@ -166,8 +166,14 @@ public class PublicController {
                         .orElseThrow();
 
         signature.setStatus("SIGNED");
-
         signatureRepository.save(signature);
+
+        // Update document status
+        Document document = signature.getDocument();
+
+        document.setStatus("SIGNED");
+
+        documentRepository.save(document);
         
         auditService.logAction(
                 "SIGN_DOCUMENT",
@@ -182,34 +188,43 @@ public class PublicController {
         return ResponseEntity.ok(
                 "Signed Successfully");
     }
-    @PostMapping(
-            "/reject/{token}/{signatureId}")
+    @PostMapping("/reject/{token}")
     public ResponseEntity<String>
     rejectDocument(
             @PathVariable String token,
-            @PathVariable Long signatureId,
             @RequestBody RejectRequest request) {
 
-        Signature signature =
-                signatureRepository
-                        .findById(signatureId)
-                        .orElseThrow();
 
-        signature.setStatus(
+        SigningToken signingToken =
+                tokenRepository
+                        .findByToken(token)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Invalid Token"));
+
+
+        Document document =
+                signingToken.getDocument();
+
+
+        document.setStatus(
                 "REJECTED");
 
-        signature.setRejectionReason(
+
+        document.setRejectionReason(
                 request.getReason());
 
-        signatureRepository.save(
-                signature);
+
+        documentRepository.save(
+                document);
+
 
         auditService.logAction(
                 "REJECT_DOCUMENT",
-                "PUBLIC_USER",
+                signingToken.getSignerEmail(),
                 "PUBLIC_LINK",
-                signature.getDocument()
-                         .getId());
+                document.getId());
+
 
         return ResponseEntity.ok(
                 "Document Rejected");
