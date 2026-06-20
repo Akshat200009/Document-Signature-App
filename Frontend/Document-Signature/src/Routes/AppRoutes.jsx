@@ -27,6 +27,10 @@ function AppRoutes() {
     return (
 
         <Routes>
+                   <Route
+        path="/"
+        element={<Navigate to="/login" />}
+    />
 
             <Route
                 path="/home"
