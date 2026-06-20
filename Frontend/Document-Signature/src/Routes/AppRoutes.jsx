@@ -22,6 +22,9 @@ from "../Pages/Dashboard";
 import DocumentPreview
 from "../Pages/DocumentPreview";
 
+import { Navigate } from "react-router-dom";
+
+
 function AppRoutes() {
 
     return (
